@@ -115,6 +115,12 @@ class Path extends Phaser.Scene {
             //  point0.x, point0.y,
             //  point1.x, point1.y
             // ]
+
+            console.log("[\n");
+            for(let point of this.curve.points){
+                console.log(point.x + ", " + point.y + "\n");
+            }
+            console.log("]");
         }   
 
         if (Phaser.Input.Keyboard.JustDown(this.rKey)) {
