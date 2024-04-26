@@ -4,7 +4,7 @@ class Path extends Phaser.Scene {
     curve;
     path;
 
-    constructor(){
+    constructor() {
         super("pathMaker");
     }
 
@@ -32,7 +32,7 @@ class Path extends Phaser.Scene {
         this.ESCKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
         this.oKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
         this.rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-        
+
         // Draw initial graphics
         this.xImages = [];
         this.drawPoints();
@@ -41,7 +41,7 @@ class Path extends Phaser.Scene {
         // Create mouse event handler
         // We create this in create() since we only want one active in this scene
         this.mouseDown = this.input.on('pointerdown', (pointer) => {
-            this.addPoint({x: pointer.x, y: pointer.y});
+            this.addPoint({ x: pointer.x, y: pointer.y });
             this.drawLine();
         });
 
@@ -52,6 +52,7 @@ class Path extends Phaser.Scene {
         // Call startFollow() on enemyShip to have it follow the curve
         my.sprite.enemyShip = this.add.follower(this.curve, 10, 10, "enemyShip");
         my.sprite.enemyShip.visible = false;
+        this.runMode = false;
 
         document.getElementById('description').innerHTML = '<h2>Path.js</h2><br>ESC: Clear points <br>O - output points <br>R - run mode';
     }
@@ -94,8 +95,9 @@ class Path extends Phaser.Scene {
             // * Add code to check if run mode is active
             //   If run mode is active, then don't call clearPoints()
             //   (i.e., can only clear points when not in run mode)
-
-            this.clearPoints();
+            if (!this.runMode) {
+                this.clearPoints();
+            }
 
         }
 
@@ -117,11 +119,11 @@ class Path extends Phaser.Scene {
             // ]
 
             console.log("[\n");
-            for(let point of this.curve.points){
+            for (let point of this.curve.points) {
                 console.log(point.x + ", " + point.y + "\n");
             }
             console.log("]");
-        }   
+        }
 
         if (Phaser.Input.Keyboard.JustDown(this.rKey)) {
             console.log("Run mode");
@@ -155,6 +157,23 @@ class Path extends Phaser.Scene {
             //     rotateToPath: true,
             //     rotationOffset: -90
             // }
+            if (this.runMode) {
+                my.sprite.enemyShip.stopFollow();
+                my.sprite.enemyShip.visible = false;
+                this.runMode = false;
+            }
+            else {
+                if (this.curve.points[0]) {
+                    this.runMode = true;
+                    my.sprite.enemyShip.x = this.curve.points[0].x;
+                    my.sprite.enemyShip.y = this.curve.points[0].y;
+                    my.sprite.enemyShip.visible = true;
+                    my.sprite.enemyShip.startFollow({
+                        from: 0, to: 1, delay: 0, duration: 2000, ease: 'Sine.easeInOut',
+                        repeat: -1, yoyo: true, rotateToPath: true, rotationOffset: -90
+                    });
+                }
+            }
         }
 
     }
